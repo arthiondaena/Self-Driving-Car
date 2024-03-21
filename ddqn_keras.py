@@ -1,7 +1,8 @@
+from tensorflow import keras
 from keras.layers import Dense, Activation
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam
-import numpy as numpy
+import numpy as np
 import tensorflow as tf 
 
 class ReplayBuffer:
@@ -74,7 +75,7 @@ class Brain:
 
 
 class DDQNAgent:
-  def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
+  def __init__(self, gamma, n_actions, epsilon, batch_size,
                input_dims, epsilon_dec=0.999995, epsilon_end=0.10,
                mem_size=25000, fname='ddqn_model.h5', replace_target=25):
     self.action_space = [i for i in range(n_actions)]
@@ -99,7 +100,7 @@ class DDQNAgent:
     state = state[np.newaxis, :]
 
     rand = np.random.random()
-    if rand < epsilon:
+    if rand < self.epsilon:
       action = np.random.choice(self.action_space)
     else:
       actions = self.brain_eval.predict(state)
@@ -140,5 +141,5 @@ class DDQNAgent:
     self.brain_eval.model = load_model(self.model_file)
     self.brain_target.model = load_model(self.model_file)
 
-    if self.epsilon = 0.0:
+    if self.epsilon == 0.0:
       self.update_network_parameters()

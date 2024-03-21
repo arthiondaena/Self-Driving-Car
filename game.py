@@ -48,7 +48,7 @@ class GameInfo:
           (self.FINISH, self.FINISH_POSITION), (self.TRACK_BORDER, (-2,-14))]
     self.clock = pygame.time.Clock()
     self.computer_car = ComputerCar(10, 10)
-    self.player_car = PlayerCar(10, 10)
+    # self.player_car = PlayerCar(10, 10)
     self.rewards = 0
 
   def car_passed(self):
@@ -77,7 +77,8 @@ class GameInfo:
     self.lap = 0
     self.goal_no = 0
     self.computer_car = ComputerCar(10, 10)
-    self.player_car = PlayerCar(10, 10)
+    # self.player_car = PlayerCar(10, 10)
+    self.started = True
   
   def start_lap(self):
     self.reset()
@@ -107,7 +108,7 @@ class GameInfo:
       f"Time: {game_info.get_time()}s", 1, (255, 255, 255))
     self.WIN.blit(time_text, (10, self.HEIGHT - time_text.get_height() - 30))
     
-    self.player_car.draw(self.WIN)
+    # self.player_car.draw(self.WIN)
     self.computer_car.draw(self.WIN)
     pygame.display.update()
 
@@ -118,45 +119,48 @@ class GameInfo:
 
       if render:
         self.draw()
-        while not self.started:
-          if not self.finished:
-            blit_text_center(self.WIN, MAIN_FONT, f"Press any key.")
-          else:
-            blit_text_center(self.WIN, MAIN_FONT, f"Time: {self.finish_time}.")
-          pygame.display.update()
+        # while not self.started:
+        #   if not self.finished:
+        #     blit_text_center(self.WIN, MAIN_FONT, f"Press any key.")
+        #   else:
+        #     blit_text_center(self.WIN, MAIN_FONT, f"Time: {self.finish_time}.")
+        #   pygame.display.update()
 
-          for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-              pygame.quit()
-              break
+        #   for event in pygame.event.get():
+        #     if event.type == pygame.QUIT:
+        #       pygame.quit()
+        #       break
             
-            if event.type == pygame.KEYDOWN:
-              self.start_lap()
-
+        #     if event.type == pygame.KEYDOWN:
+        #       self.start_lap()
+      else:
+        self.WIN.fill((0, 0, 0))
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           pygame.quit()
           break
         
         if event.type == pygame.KEYDOWN and not self.started:
-          self.start_lap() 
-      self.player_car.move_player()
-      self.track_collision(self.player_car)
+          self.start_lap()
+
+      # self.player_car.move_player()
+      # self.track_collision(self.player_car)
       self.track_collision(self.computer_car)
       self.car_passed()
-      self.step(random.randint(0, 9))
+      # self.step(random.randint(0, 9))
 
-      finish_poi_collide = self.player_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
+      finish_poi_collide = self.computer_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
 
       if finish_poi_collide != None:
         self.next_lap()
       
-      self.calculate_rays(self.player_car)
+      # self.calculate_rays(self.player_car)
       self.calculate_rays(self.computer_car)
 
-      print(self.rewards)
+      # print(self.rewards)
       
       pygame.display.update()
+      break
 
   def calculate_rays(self, car):
     rays = []
@@ -165,10 +169,14 @@ class GameInfo:
     return rays
 
   def step(self, action):
+    if action == 0 and not self.started:
+      self.started = True
+      self.start_lap = True
     done = False
     old_rewards = self.rewards
     self.computer_car.move_player(action)
     new_state = self.calculate_rays(self.computer_car)
+    print('action', action)
 
     if self.track_collision(self.computer_car):
       done = True
@@ -253,7 +261,7 @@ class ComputerCar(AbstractCar):
     moved = False
 
     if choice == 0:
-      pass 
+      pass
     elif choice == 1:
       moved = True
       self.move_forward()
@@ -309,6 +317,6 @@ class PlayerCar(AbstractCar):
 
 game_info = GameInfo()
 
-game_info.play_game(True)
+# game_info.play_game(True)
   
-pygame.quit()
+# pygame.quit()

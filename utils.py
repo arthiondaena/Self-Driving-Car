@@ -42,7 +42,7 @@ def draw_beam(surface, angle, pos, filpped_masks):
 
     # line1 = pygame.draw.line(surface, (0, 0, 255), pos, hit_pos)
     # pygame.draw.circle(surface, (0, 255, 0), hit_pos, 3)
-    #pygame.draw.circle(surface, (255, 255, 0), mouse_pos, 3)
+    # pygame.draw.circle(surface, (255, 255, 0), mouse_pos, 3)
     return round(math.hypot(hx-pos[0], hy-pos[1]), 2)
   return surface.get_width()
   
