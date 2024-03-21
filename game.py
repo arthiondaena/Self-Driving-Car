@@ -47,7 +47,7 @@ class GameInfo:
     self.images = [(self.GRASS, (0, 0)), (self.TRACK, (-2, -14)),
           (self.FINISH, self.FINISH_POSITION), (self.TRACK_BORDER, (-2,-14))]
     self.clock = pygame.time.Clock()
-    self.computer_car = ComputerCar(10, 10)
+    self.computer_car = ComputerCar(15, 15)
     # self.player_car = PlayerCar(10, 10)
     self.rewards = 0
 
@@ -166,6 +166,8 @@ class GameInfo:
     rays = []
     for angle in range(180, 361, 30):
       rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks))
+    for i in range(len(rays)):
+      rays[i] = ((1000 - rays[i]) / 1000)
     return rays
 
   def step(self, action):
@@ -176,7 +178,7 @@ class GameInfo:
     old_rewards = self.rewards
     self.computer_car.move_player(action)
     new_state = self.calculate_rays(self.computer_car)
-    print('action', action)
+    # print('action', action)
 
     if self.track_collision(self.computer_car):
       done = True
