@@ -18,7 +18,7 @@ GameTime = 100
 GameHistory = []
 renderFlag = True
 
-ddqn_agent = DDQNAgent(gamma=0.99, n_actions=5, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.9995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
+ddqn_agent = DDQNAgent(gamma=0.99, n_actions=5, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.9999, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
 
 ddqn_scores = []
 eps_his = []
