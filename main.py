@@ -53,7 +53,7 @@ def run():
       action = ddqn_agent.choose_action(observation)
       observation_, reward, done = game.step(action)
       observation_ = np.array(observation_)
-      print(game.computer_car.x, game.computer_car.y)
+      # print(game.computer_car.x, game.computer_car.y)
       # This is a countdown if no reward is collected in 100 ticks then done is True
       if reward == 0:
         counter += 1
