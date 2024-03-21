@@ -53,7 +53,7 @@ class GameInfo:
 
   def car_passed(self):
     for i in range(len(self.GOALS)):
-      # line = pygame.draw.line(WIN, (0, 0, 255), self.GOALS[i][0], self.GOALS[i][1])
+      # line = pygame.draw.line(self.WIN, (0, 0, 255), self.GOALS[i][0], self.GOALS[i][1])
       rect = pygame.Rect([self.computer_car.x, self.computer_car.y, self.computer_car.CAR_SIZE[0], self.computer_car.CAR_SIZE[1]])
 
       if rect.clipline(self.GOALS[i][0], self.GOALS[i][1]):
@@ -133,8 +133,7 @@ class GameInfo:
             
         #     if event.type == pygame.KEYDOWN:
         #       self.start_lap()
-      else:
-        self.WIN.fill((0, 0, 0))
+      
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           pygame.quit()
@@ -160,7 +159,7 @@ class GameInfo:
       # print(self.rewards)
       
       pygame.display.update()
-      break
+      # break
 
   def calculate_rays(self, car):
     rays = []
