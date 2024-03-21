@@ -3,36 +3,49 @@ import time
 import math
 from utils import *
 from goal_maker import make_goals, get_goals
-import random
 
 
 pygame.font.init()
+GRASS = scale_image(pygame.image.load("imgs/grass.jpg"), 2.5)
+
+TRACK = scale_image(pygame.image.load("imgs/track.png"), 0.9)
+
+TRACK_BORDER = scale_image(pygame.image.load("imgs/track-border.png"), 0.9)
+
+mask_surface = scale_image(pygame.image.load("imgs/track_outline.png"), 0.9)
+mask_pos = (2,14)
+
+# TRACK_BORDER = mask_surface
+
+TRACK_BORDER_MASK = pygame.mask.from_surface(mask_surface)
+FINISH = pygame.image.load("imgs/finish.png")
+FINISH_MASK = pygame.mask.from_surface(FINISH)
+FINISH_POSITION = (130, 250)
+
+RED_CAR = scale_image(pygame.image.load("imgs/red-car.png"), 0.55)
+GREEN_CAR = scale_image(pygame.image.load("imgs/green-car.png"), 0.55)
+
+WIDTH, HEIGHT = TRACK.get_width(), TRACK.get_height()
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Racing Game!")
 
 MAIN_FONT = pygame.font.SysFont("comicsans",44)
+
+FPS = 60
 
 class GameInfo:
   LAPS = 2
   FPS = 60
+  
   GRASS = scale_image(pygame.image.load("imgs/grass.jpg"), 2.5)
   TRACK = scale_image(pygame.image.load("imgs/track.png"), 0.9)
   TRACK_BORDER = scale_image(pygame.image.load("imgs/track-border.png"), 0.9)
   MASK_SURFACE = scale_image(pygame.image.load("imgs/track_outline.png"), 0.9)
-  TRACK_BORDER_MASK = pygame.mask.from_surface(MASK_SURFACE)
+  mask_pos = (2,14)
+  TRACK_BORDER_MASK = pygame.mask.from_surface(mask_surface)
   FINISH = pygame.image.load("imgs/finish.png")
   FINISH_MASK = pygame.mask.from_surface(FINISH)
   FINISH_POSITION = (130, 250)
-  WIDTH, HEIGHT = TRACK.get_width(), TRACK.get_height()
-  WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-  pygame.display.set_caption("Racing Game!")
-
-  mask = pygame.mask.from_surface(MASK_SURFACE)
-  mask_fx = pygame.mask.from_surface(
-      pygame.transform.flip(MASK_SURFACE, True, False))
-  mask_fy = pygame.mask.from_surface(
-      pygame.transform.flip(MASK_SURFACE, False, True))
-  mask_fx_fy = pygame.mask.from_surface(
-      pygame.transform.flip(MASK_SURFACE, True, True))
-  filpped_masks = [[mask, mask_fy], [mask_fx, mask_fx_fy]]
 
   def __init__(self):
     self.started = False
@@ -44,21 +57,13 @@ class GameInfo:
     self.finished = False
     self.finish_time = 0
     self.goals_passed = [False]*len(self.GOALS)
-    self.images = [(self.GRASS, (0, 0)), (self.TRACK, (-2, -14)),
-          (self.FINISH, self.FINISH_POSITION), (self.TRACK_BORDER, (-2,-14))]
-    self.clock = pygame.time.Clock()
-    self.computer_car = ComputerCar(10, 10)
-    self.player_car = PlayerCar(10, 10)
-    self.rewards = 0
 
-  def car_passed(self):
+  def car_passed(self, player_car, WIN):
     for i in range(len(self.GOALS)):
       # line = pygame.draw.line(WIN, (0, 0, 255), self.GOALS[i][0], self.GOALS[i][1])
-      rect = pygame.Rect([self.computer_car.x, self.computer_car.y, self.computer_car.CAR_SIZE[0], self.computer_car.CAR_SIZE[1]])
+      rect = pygame.Rect([player_car.x, player_car.y, player_car.CAR_SIZE[0], player_car.CAR_SIZE[1]])
 
       if rect.clipline(self.GOALS[i][0], self.GOALS[i][1]):
-        if self.goals_passed[i] is False:
-          self.rewards += 1
         self.goals_passed[i] = True
         if i == len(self.GOALS)/2:
           self.passed_half_lap = True
@@ -76,8 +81,6 @@ class GameInfo:
   def reset(self):
     self.lap = 0
     self.goal_no = 0
-    self.computer_car = ComputerCar(10, 10)
-    self.player_car = PlayerCar(10, 10)
   
   def start_lap(self):
     self.reset()
@@ -89,101 +92,8 @@ class GameInfo:
       return 0
     return round(time.time() - self.race_time, 2)
 
-  def track_collision(self, car):
-    if car.collide(self.TRACK_BORDER_MASK) != None:
-      car.bounce()
-      return True
-
-
-  def draw(self):
-    for img, pos, in self.images:
-      self.WIN.blit(img, pos)
-
-    lap_text = MAIN_FONT.render(
-        f"Lap {game_info.lap}", 1, (255, 255, 255))
-    self.WIN.blit(lap_text, (10, self.HEIGHT - lap_text.get_height() - 60))
-
-    time_text = MAIN_FONT.render(
-      f"Time: {game_info.get_time()}s", 1, (255, 255, 255))
-    self.WIN.blit(time_text, (10, self.HEIGHT - time_text.get_height() - 30))
-    
-    self.player_car.draw(self.WIN)
-    self.computer_car.draw(self.WIN)
-    pygame.display.update()
-
-  def play_game(self, render=False):
-    run = True
-    while run:
-      self.clock.tick(self.FPS)
-
-      if render:
-        self.draw()
-        while not self.started:
-          if not self.finished:
-            blit_text_center(self.WIN, MAIN_FONT, f"Press any key.")
-          else:
-            blit_text_center(self.WIN, MAIN_FONT, f"Time: {self.finish_time}.")
-          pygame.display.update()
-
-          for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-              pygame.quit()
-              break
-            
-            if event.type == pygame.KEYDOWN:
-              self.start_lap()
-
-      for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-          pygame.quit()
-          break
-        
-        if event.type == pygame.KEYDOWN and not self.started:
-          self.start_lap() 
-      self.player_car.move_player()
-      self.track_collision(self.player_car)
-      self.track_collision(self.computer_car)
-      self.car_passed()
-      self.step(random.randint(0, 9))
-
-      finish_poi_collide = self.player_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
-
-      if finish_poi_collide != None:
-        self.next_lap()
-      
-      self.calculate_rays(self.player_car)
-      self.calculate_rays(self.computer_car)
-
-      print(self.rewards)
-      
-      pygame.display.update()
-
-  def calculate_rays(self, car):
-    rays = []
-    for angle in range(180, 361, 30):
-      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks))
-    return rays
-
-  def step(self, action):
-    done = False
-    old_rewards = self.rewards
-    self.computer_car.move_player(action)
-    new_state = self.calculate_rays(self.computer_car)
-
-    if self.track_collision(self.computer_car):
-      done = True
-      self.rewards -= 1
-    
-    rewards = self.rewards - old_rewards
-    
-    if done:
-      new_state = None
-    
-    return new_state, rewards, done
-    
 
 class AbstractCar:
-  
   def __init__(self, max_vel, rotation_vel):
     self.img = self.IMG
     self.max_vel = max_vel
@@ -243,8 +153,6 @@ class AbstractCar:
     self.vel = 0
 
 class ComputerCar(AbstractCar):
-  RED_CAR = scale_image(pygame.image.load("imgs/red-car.png"), 0.55)
-  GREEN_CAR = scale_image(pygame.image.load("imgs/green-car.png"), 0.55)
   IMG = RED_CAR
   START_POS = (180, 200)
   CAR_SIZE = IMG.get_size()
@@ -282,8 +190,6 @@ class ComputerCar(AbstractCar):
       self.rotate(right=True)
 
 class PlayerCar(AbstractCar):
-  RED_CAR = scale_image(pygame.image.load("imgs/red-car.png"), 0.55)
-  GREEN_CAR = scale_image(pygame.image.load("imgs/green-car.png"), 0.55)
   IMG = GREEN_CAR
   START_POS = (160, 200)
   CAR_SIZE = IMG.get_size()
@@ -307,8 +213,83 @@ class PlayerCar(AbstractCar):
       self.reduce_speed()
 
 
+def draw(win, images, computer_car, game_info):
+  for img, pos, in images:
+    win.blit(img, pos)
+
+  lap_text = MAIN_FONT.render(
+      f"Lap {game_info.lap}", 1, (255, 255, 255))
+  win.blit(lap_text, (10, HEIGHT - lap_text.get_height() - 60))
+
+  time_text = MAIN_FONT.render(
+    f"Time: {game_info.get_time()}s", 1, (255, 255, 255))
+  win.blit(time_text, (10, HEIGHT - time_text.get_height() - 30))
+  
+  player_car.draw(win)
+  pygame.display.update()
+
+
+clock = pygame.time.Clock()
+images = [(GRASS, (0, 0)), (TRACK, (-2, -14)),
+          (FINISH, FINISH_POSITION), (TRACK_BORDER, (-2,-14))]
+player_car = PlayerCar(8, 8)
+
+mask = pygame.mask.from_surface(mask_surface)
+mask_fx = pygame.mask.from_surface(
+    pygame.transform.flip(mask_surface, True, False))
+mask_fy = pygame.mask.from_surface(
+    pygame.transform.flip(mask_surface, False, True))
+mask_fx_fy = pygame.mask.from_surface(
+    pygame.transform.flip(mask_surface, True, True))
+filpped_masks = [[mask, mask_fy], [mask_fx, mask_fx_fy]]
+
 game_info = GameInfo()
 
-game_info.play_game(True)
+def play_game():
+  run = True
+  while run:
+    clock.tick(FPS)
+
+    draw(WIN, images, player_car, game_info)
+
+    while not game_info.started:
+      if not game_info.finished:
+        blit_text_center(WIN, MAIN_FONT, f"Press any key.")
+      else:
+        blit_text_center(WIN, MAIN_FONT, f"Time: {game_info.finish_time}.")
+      pygame.display.update()
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          pygame.quit()
+          break
+        
+        if event.type == pygame.KEYDOWN:
+          game_info.start_lap()
+
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        run = False
+        break
+      if pygame.mouse.get_pressed()[0]: # if left button of the mouse pressed
+        print(pygame.mouse.get_pos())
+      
+    player_car.move_player()
+
+    if player_car.collide(TRACK_BORDER_MASK) != None:
+      player_car.bounce()
+    
+    game_info.car_passed(player_car, WIN)
+
+    finish_poi_collide = player_car.collide(FINISH_MASK, *FINISH_POSITION)
+
+    if finish_poi_collide != None:
+      game_info.next_lap()
+    
+    lines = []
+    for angle in range(180, 361, 30):
+      lines.append(draw_beam(WIN, angle-player_car.angle, (player_car.x+10, player_car.y+20), filpped_masks))
+    print(lines)
+    
+    pygame.display.update()
   
-pygame.quit()
+  pygame.quit()

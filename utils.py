@@ -40,8 +40,8 @@ def draw_beam(surface, angle, pos, filpped_masks):
     hy = surface.get_height() - 1 - hit[1] if flip_y else hit[1]
     hit_pos = (hx, hy)
 
-    line1 = pygame.draw.line(surface, (0, 0, 255), pos, hit_pos)
-    pygame.draw.circle(surface, (0, 255, 0), hit_pos, 3)
+    # line1 = pygame.draw.line(surface, (0, 0, 255), pos, hit_pos)
+    # pygame.draw.circle(surface, (0, 255, 0), hit_pos, 3)
     #pygame.draw.circle(surface, (255, 255, 0), mouse_pos, 3)
     return round(math.hypot(hx-pos[0], hy-pos[1]), 2)
   return surface.get_width()
