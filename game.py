@@ -47,7 +47,7 @@ class GameInfo:
     self.images = [(self.GRASS, (0, 0)), (self.TRACK, (-2, -14)),
           (self.FINISH, self.FINISH_POSITION), (self.TRACK_BORDER, (-2,-14))]
     self.clock = pygame.time.Clock()
-    self.computer_car = ComputerCar(15, 15)
+    self.computer_car = ComputerCar(10, 10)
     # self.player_car = PlayerCar(10, 10)
     self.rewards = 0
 
