@@ -58,7 +58,7 @@ class GameInfo:
 
       if rect.clipline(self.GOALS[i][0], self.GOALS[i][1]):
         if self.goals_passed[i] is False:
-          self.rewards += 1
+          self.rewards += 10
         self.goals_passed[i] = True
         if i == len(self.GOALS)/2:
           self.passed_half_lap = True
@@ -185,10 +185,10 @@ class GameInfo:
 
     if self.track_collision(self.computer_car):
       done = True
-      self.rewards -= 1
+      self.rewards -= 25
     
     rewards = self.rewards - old_rewards
-    rewards += self.computer_car.vel/self.computer_car.max_vel
+    rewards += (self.computer_car.vel/self.computer_car.max_vel)/10
     
     if done:
       new_state = None

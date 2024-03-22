@@ -71,7 +71,8 @@ def run():
       ddqn_agent.learn()
 
       gtime += 1
-      print(game.rewards)
+      if(game.rewards!=0):
+        print(game.rewards)
 
       if gtime >= TOTAL_GAMETIME:
         done = True
