@@ -79,6 +79,9 @@ class GameInfo:
     self.computer_car = ComputerCar(10, 10)
     # self.player_car = PlayerCar(10, 10)
     self.started = True
+    self.rewards = 0
+    self.finished = False
+    
   
   def start_lap(self):
     self.reset()
@@ -154,19 +157,19 @@ class GameInfo:
         self.next_lap()
       
       # self.calculate_rays(self.player_car)
-      self.calculate_rays(self.computer_car)
+      # self.calculate_rays(self.computer_car)
 
       # print(self.rewards)
       
       pygame.display.update()
-      # break
+      break
 
   def calculate_rays(self, car):
     rays = []
     for angle in range(180, 361, 30):
       rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks))
-    for i in range(len(rays)):
-      rays[i] = ((1000 - rays[i]) / 1000)
+    # for i in range(len(rays)):
+    #   rays[i] = ((1000 - rays[i]) / 1000)
     return rays
 
   def step(self, action):
@@ -178,18 +181,20 @@ class GameInfo:
     self.computer_car.move_player(action)
     new_state = self.calculate_rays(self.computer_car)
     # print('action', action)
+    self.car_passed()
 
     if self.track_collision(self.computer_car):
       done = True
       self.rewards -= 1
     
     rewards = self.rewards - old_rewards
+    rewards += self.computer_car.vel/self.computer_car.max_vel
     
     if done:
       new_state = None
     
     return new_state, rewards, done
-    
+  
 
 class AbstractCar:
   

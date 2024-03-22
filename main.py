@@ -46,16 +46,17 @@ def run():
           return
       if e % 10 == 0:
         renderFlag = True
-        game.play_game(render=True)
+        game.play_game(render=False)
       else:
         game.play_game(render=False)
 
       action = ddqn_agent.choose_action(observation)
       observation_, reward, done = game.step(action)
       observation_ = np.array(observation_)
+      # print(action)
       # print(game.computer_car.x, game.computer_car.y)
       # This is a countdown if no reward is collected in 100 ticks then done is True
-      if reward == 0:
+      if score <= 0:
         counter += 1
         if counter > 100:
           done = True
@@ -70,6 +71,8 @@ def run():
       ddqn_agent.learn()
 
       gtime += 1
+      print(game.rewards)
+
       if gtime >= TOTAL_GAMETIME:
         done = True
       
