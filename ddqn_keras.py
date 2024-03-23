@@ -53,7 +53,7 @@ class Brain:
   def createModel(self):
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Dense(256, activation = tf.nn.relu))
-    model.add(tf.keras.layers.Dense(self.NbrActions, activation = tf.nn.softmax))
+    model.add(tf.keras.layers.Dense(self.NbrActions, activation = 'softmax'))
     model.compile(loss = "mse", optimizer = "adam")
 
     return model
@@ -77,7 +77,7 @@ class Brain:
 class DDQNAgent:
   def __init__(self, gamma, n_actions, epsilon, batch_size,
                input_dims, epsilon_dec=0.999995, epsilon_end=0.10,
-               mem_size=25000, fname='ddqn_model.h5', replace_target=25):
+               mem_size=25000, fname='ddqn_model.keras', replace_target=25):
     self.action_space = [i for i in range(n_actions)]
     self.n_actions = n_actions
     self.gamma = gamma
