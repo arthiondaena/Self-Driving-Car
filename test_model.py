@@ -1,6 +1,6 @@
 import game
 import pygame
-import numpy as numpy
+import numpy as np
 from keras.activations import *
 
 from ddqn_keras import DDQNAgent
@@ -69,9 +69,6 @@ def run():
       observation = observation_
 
       gtime += 1
-      if(game.rewards!=0):
-        print(game.rewards)
-
       if gtime >= TOTAL_GAMETIME:
         done = True
 

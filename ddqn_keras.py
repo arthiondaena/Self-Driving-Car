@@ -129,7 +129,8 @@ class DDQNAgent:
 
       _ = self.brain_eval.train(state, q_target)
 
-      self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
+  def decay_epsilon(self):
+    self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
 
   def update_network_parameters(self):
     self.brain_target.copy_weights(self.brain_eval)

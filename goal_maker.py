@@ -20,6 +20,8 @@ def get_goals():
   return goals
 
 GOALS = []
+
+# Use this to make goals
 def make_goals():
   GOALS = []
   goal = []
@@ -34,10 +36,3 @@ def make_goals():
     print(GOALS)
     goal = []
   return
-
-
-# ans = []
-# for i in range(0, len(goals), 2):
-#   ans.append((goals[i], goals[i+1]))
-
-# print(ans)

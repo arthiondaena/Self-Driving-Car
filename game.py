@@ -25,6 +25,7 @@ class GameInfo:
   WIN = pygame.display.set_mode((WIDTH, HEIGHT))
   pygame.display.set_caption("Racing Game!")
 
+  # All the masks to identify the collision
   mask = pygame.mask.from_surface(MASK_SURFACE)
   mask_fx = pygame.mask.from_surface(
       pygame.transform.flip(MASK_SURFACE, True, False))
@@ -48,14 +49,15 @@ class GameInfo:
           (self.FINISH, self.FINISH_POSITION), (self.TRACK_BORDER, (-2,-14))]
     self.clock = pygame.time.Clock()
     self.computer_car = ComputerCar(10, 10)
-    # self.player_car = PlayerCar(10, 10)
     self.rewards = 0
 
   def car_passed(self):
     for i in range(len(self.GOALS)):
+      # use below line for displaying goals
       # line = pygame.draw.line(self.WIN, (0, 0, 255), self.GOALS[i][0], self.GOALS[i][1])
       rect = pygame.Rect([self.computer_car.x, self.computer_car.y, self.computer_car.CAR_SIZE[0], self.computer_car.CAR_SIZE[1]])
 
+      # if car collides with any of the goal, and goal_passed[i] is False, then increase rewards by 10
       if rect.clipline(self.GOALS[i][0], self.GOALS[i][1]):
         if self.goals_passed[i] is False:
           self.rewards += 10
@@ -64,10 +66,12 @@ class GameInfo:
           self.passed_half_lap = True
 
   def next_lap(self):
+    # if passed half lap, reset all the goals to False
     if self.passed_half_lap:
       self.lap += 1
       self.goals_passed = [False]*len(self.GOALS)
       self.passed_half_lap = False
+    # end game
     if self.lap == self.LAPS:
       self.finished = True
       self.finish_time = self.get_time()
@@ -77,12 +81,10 @@ class GameInfo:
     self.lap = 0
     self.goal_no = 0
     self.computer_car = ComputerCar(10, 10)
-    # self.player_car = PlayerCar(10, 10)
-    self.started = True
+    self.goals_passed = [False]*len(self.GOALS)
     self.rewards = 0
     self.finished = False
     
-  
   def start_lap(self):
     self.reset()
     self.race_time = time.time()
@@ -98,20 +100,21 @@ class GameInfo:
       car.bounce()
       return True
 
+  def gates_passed(self):
+    return self.goals_passed.count(True)
 
   def draw(self):
     for img, pos, in self.images:
       self.WIN.blit(img, pos)
 
     lap_text = MAIN_FONT.render(
-        f"Lap {game_info.lap}", 1, (255, 255, 255))
+        f"Lap {self.lap}", 1, (255, 255, 255))
     self.WIN.blit(lap_text, (10, self.HEIGHT - lap_text.get_height() - 60))
 
     time_text = MAIN_FONT.render(
-      f"Time: {game_info.get_time()}s", 1, (255, 255, 255))
+      f"Time: {self.get_time()}s", 1, (255, 255, 255))
     self.WIN.blit(time_text, (10, self.HEIGHT - time_text.get_height() - 30))
     
-    # self.player_car.draw(self.WIN)
     self.computer_car.draw(self.WIN)
     pygame.display.update()
 
@@ -122,65 +125,39 @@ class GameInfo:
 
       if render:
         self.draw()
-        # while not self.started:
-        #   if not self.finished:
-        #     blit_text_center(self.WIN, MAIN_FONT, f"Press any key.")
-        #   else:
-        #     blit_text_center(self.WIN, MAIN_FONT, f"Time: {self.finish_time}.")
-        #   pygame.display.update()
-
-        #   for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #       pygame.quit()
-        #       break
-            
-        #     if event.type == pygame.KEYDOWN:
-        #       self.start_lap()
-      
+        
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           pygame.quit()
           break
-        
-        if event.type == pygame.KEYDOWN and not self.started:
-          self.start_lap()
 
-      # self.player_car.move_player()
-      # self.track_collision(self.player_car)
       self.track_collision(self.computer_car)
       self.car_passed()
-      # self.step(random.randint(0, 9))
 
       finish_poi_collide = self.computer_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
 
       if finish_poi_collide != None:
         self.next_lap()
       
-      # self.calculate_rays(self.player_car)
-      # self.calculate_rays(self.computer_car)
-
-      # print(self.rewards)
+      self.calculate_rays(self.computer_car, render)
       
       pygame.display.update()
       break
 
-  def calculate_rays(self, car):
+  def calculate_rays(self, car, render=False):
     rays = []
     for angle in range(180, 361, 30):
-      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks))
-    # for i in range(len(rays)):
-    #   rays[i] = ((1000 - rays[i]) / 1000)
+      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks,))
     return rays
 
   def step(self, action):
-    if action == 0 and not self.started:
+    if not self.started:
       self.started = True
-      self.start_lap = True
+      self.start_lap()
     done = False
     old_rewards = self.rewards
     self.computer_car.move_player(action)
     new_state = self.calculate_rays(self.computer_car)
-    # print('action', action)
     self.car_passed()
 
     if self.track_collision(self.computer_car):
@@ -188,7 +165,8 @@ class GameInfo:
       self.rewards -= 25
     
     rewards = self.rewards - old_rewards
-    rewards += (self.computer_car.vel/self.computer_car.max_vel)/10
+    # Small rewards based on current car velocity
+    rewards += round(self.computer_car.vel/self.computer_car.max_vel, 2)
     
     if done:
       new_state = None
@@ -319,10 +297,5 @@ class PlayerCar(AbstractCar):
 
     if not moved:
       self.reduce_speed()
-
-
-game_info = GameInfo()
-
-# game_info.play_game(True)
   
 # pygame.quit()

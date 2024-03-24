@@ -9,16 +9,14 @@ TOTAL_GAMETIME = 1000
 N_EPISODES = 10000
 REPLACE_TARGET = 50
 
-print('init')
 pygame.init()
 
 game = game.GameInfo()
 
-GameTime = 100
-GameHistory = []
-renderFlag = True
-
 ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.9999, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
+
+# Try existing model
+ddqn_agent.load_model()
 
 ddqn_scores = []
 eps_his = []
@@ -37,24 +35,20 @@ def run():
 
     gtime = 0
 
-    renderFlag = False
-
     while not done:
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           pygame.quit()
           return
       if e % 10 == 0:
-        renderFlag = True
-        game.play_game(render=False)
+        game.play_game(render=True)
       else:
         game.play_game(render=False)
 
       action = ddqn_agent.choose_action(observation)
       observation_, reward, done = game.step(action)
       observation_ = np.array(observation_)
-      # print(action)
-      # print(game.computer_car.x, game.computer_car.y)
+
       # This is a countdown if no reward is collected in 100 ticks then done is True
       if score <= 0:
         counter += 1
@@ -71,8 +65,6 @@ def run():
       ddqn_agent.learn()
 
       gtime += 1
-      if(game.rewards!=0):
-        print(game.rewards)
 
       if gtime >= TOTAL_GAMETIME:
         done = True
@@ -89,8 +81,10 @@ def run():
       print("save model")
     
     print('episode: ', e, 'score: %.2f' % score,
+          ' reward gates passed: ', game.gates_passed(),
           ' average score %.2f' % avg_score,
           ' epsilon: ', ddqn_agent.epsilon,
           ' memory size', ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size)
+    ddqn_agent.decay_epsilon()
 
 run()
