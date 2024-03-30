@@ -25,7 +25,7 @@ def draw_beam(surface, angle, pos, filpped_masks, beam_surface, render=False):
 
   # beam_surface = pygame.Surface(surface.get_rect().center, pygame.SRCALPHA)
 
-  # beam_surface.fill((0, 0, 0, 0))
+  beam_surface.fill((0, 0, 0, 0))
 
   # draw a single beam to the beam surface based on computed final point
   pygame.draw.line(beam_surface, (0, 0, 255), (0, 0), (x_dest, y_dest))

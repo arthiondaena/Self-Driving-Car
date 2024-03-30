@@ -17,10 +17,8 @@ game = game.GameInfo()
 ddqn_agent = DDQNAgent(gamma=0.999, n_actions=4, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
 
 # Try existing model
-ddqn_agent.load_model()
+# ddqn_agent.load_model()
 
-plt.ion()
-plt.clf()
 plt.xlabel('episodes')
 plt.ylabel('reward gates')
 
@@ -31,9 +29,6 @@ episodesNo = []
 reward_gates = []
 ddqn_scores = []
 eps_his = []
-
-# plot empty line to generate line object
-line, = ax.plot(episodesNo,reward_gates)
 
 def run():
 
@@ -57,7 +52,7 @@ def run():
       if e % 10 == 0:
         game.play_game(render=True)
       else:
-        game.play_game(render=False)
+        game.play_game(render=True)
 
       action = ddqn_agent.choose_action(observation)
       observation_, reward, done = game.step(action)
@@ -88,8 +83,7 @@ def run():
     avg_score = np.mean(ddqn_scores[max(0, e-100):(e+1)])
     episodesNo.append(e)
     reward_gates.append(game.gates_passed())
-
-    line.set_data(episodesNo, reward_gates)
+    ax.plot(episodesNo, reward_gates)
     plt.draw()
     plt.savefig("plot.png")
 
@@ -106,7 +100,5 @@ def run():
           ' epsilon: ', ddqn_agent.epsilon,
           ' memory size', ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size)
     ddqn_agent.decay_epsilon()
-
-plt.ioff()
 
 run()

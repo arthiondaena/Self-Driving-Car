@@ -35,6 +35,8 @@ class GameInfo:
       pygame.transform.flip(MASK_SURFACE, True, True))
   filpped_masks = [[mask, mask_fy], [mask_fx, mask_fx_fy]]
 
+  beam_surface = pygame.Surface(WIN.get_rect().center, pygame.SRCALPHA)
+
   def __init__(self):
     self.started = False
     self.lap = 0
@@ -101,7 +103,7 @@ class GameInfo:
       return True
 
   def gates_passed(self):
-    return self.goals_passed.count(True)
+    return self.goals_passed.count(True)+(self.lap*len(self.goals_passed))
 
   def draw(self):
     for img, pos, in self.images:
@@ -146,10 +148,9 @@ class GameInfo:
 
   def calculate_rays(self, car, render=False):
     rays = []
-    beam_surface = pygame.Surface(self.WIN.get_rect().center, pygame.SRCALPHA)
-    beam_surface.fill((0, 0, 0, 0))
     for angle in range(180, 361, 30):
-      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, beam_surface, render))
+      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+    print(rays)
     return rays
 
   def step(self, action):

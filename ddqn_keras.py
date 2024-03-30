@@ -26,7 +26,7 @@ class ReplayBuffer:
       actions[action] = 1.0
       self.action_mem[index] = actions
     else:
-      self.action_mem[index] = actions
+      self.action_mem[index] = action
     self.reward_mem[index] = reward
     self.terminal_mem[index] = 1-done
     self.mem_cntr += 1
@@ -52,8 +52,11 @@ class Brain:
   
   def createModel(self):
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Dense(256, activation = tf.nn.relu))
-    model.add(tf.keras.layers.Dense(self.NbrActions, activation = 'softmax'))
+    model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
+    model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
+    # model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
+    model.add(tf.keras.layers.Dense(self.NbrActions, activation = tf.nn.relu))
+
     model.compile(loss = "mse", optimizer = "adam")
 
     return model
