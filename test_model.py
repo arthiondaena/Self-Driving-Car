@@ -71,5 +71,10 @@ def run():
       gtime += 1
       if gtime >= TOTAL_GAMETIME:
         done = True
+    
+    print('episode: ', e, 'score: %.2f' % score,
+          ' reward gates passed: ', game.gates_passed(),
+          ' ray distances ', game.calculate_rays(game.computer_car)
+)
 
 run()

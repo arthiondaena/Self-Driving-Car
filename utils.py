@@ -11,7 +11,7 @@ def blit_rotate_center(win, image, top_left, angle):
     center=image.get_rect(topleft=top_left).center)
   win.blit(rotated_image, new_rect.topleft)
 
-def draw_beam(surface, angle, pos, filpped_masks, render=False):
+def draw_beam(surface, angle, pos, filpped_masks, beam_surface, render=False):
   c = math.cos(math.radians(angle))
   s = math.sin(math.radians(angle))
 
@@ -23,9 +23,9 @@ def draw_beam(surface, angle, pos, filpped_masks, render=False):
   x_dest = surface.get_width() * abs(c)
   y_dest = surface.get_height() * abs(s)
 
-  beam_surface = pygame.Surface(surface.get_rect().center, pygame.SRCALPHA)
+  # beam_surface = pygame.Surface(surface.get_rect().center, pygame.SRCALPHA)
 
-  beam_surface.fill((0, 0, 0, 0))
+  # beam_surface.fill((0, 0, 0, 0))
 
   # draw a single beam to the beam surface based on computed final point
   pygame.draw.line(beam_surface, (0, 0, 255), (0, 0), (x_dest, y_dest))

@@ -146,8 +146,10 @@ class GameInfo:
 
   def calculate_rays(self, car, render=False):
     rays = []
+    beam_surface = pygame.Surface(self.WIN.get_rect().center, pygame.SRCALPHA)
+    beam_surface.fill((0, 0, 0, 0))
     for angle in range(180, 361, 30):
-      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks,))
+      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, beam_surface, render))
     return rays
 
   def step(self, action):

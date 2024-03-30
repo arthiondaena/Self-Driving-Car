@@ -4,6 +4,7 @@ import numpy as np
 from collections import deque
 import random, math
 from ddqn_keras import DDQNAgent
+import matplotlib.pyplot as plt
 
 TOTAL_GAMETIME = 1000
 N_EPISODES = 10000
@@ -13,13 +14,26 @@ pygame.init()
 
 game = game.GameInfo()
 
-ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
+ddqn_agent = DDQNAgent(gamma=0.999, n_actions=4, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
 
 # Try existing model
 ddqn_agent.load_model()
 
+plt.ion()
+plt.clf()
+plt.xlabel('episodes')
+plt.ylabel('reward gates')
+
+fig = plt.figure()
+ax = fig.gca()
+
+episodesNo = []
+reward_gates = []
 ddqn_scores = []
 eps_his = []
+
+# plot empty line to generate line object
+line, = ax.plot(episodesNo,reward_gates)
 
 def run():
 
@@ -72,6 +86,12 @@ def run():
     eps_his.append(ddqn_agent.epsilon)
     ddqn_scores.append(score)
     avg_score = np.mean(ddqn_scores[max(0, e-100):(e+1)])
+    episodesNo.append(e)
+    reward_gates.append(game.gates_passed())
+
+    line.set_data(episodesNo, reward_gates)
+    plt.draw()
+    plt.savefig("plot.png")
 
     if e % REPLACE_TARGET == 0 and e > REPLACE_TARGET:
       ddqn_agent.update_network_parameters()
@@ -86,5 +106,7 @@ def run():
           ' epsilon: ', ddqn_agent.epsilon,
           ' memory size', ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size)
     ddqn_agent.decay_epsilon()
+
+plt.ioff()
 
 run()
