@@ -150,7 +150,6 @@ class GameInfo:
     rays = []
     for angle in range(180, 361, 30):
       rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
-    print(rays)
     return rays
 
   def step(self, action):
@@ -172,7 +171,7 @@ class GameInfo:
     rewards += round(self.computer_car.vel/self.computer_car.max_vel, 2)
     
     if done:
-      new_state = None
+      new_state = [0]*len(new_state)
     
     return new_state, rewards, done
   

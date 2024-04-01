@@ -55,7 +55,7 @@ class Brain:
     model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
     model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
     # model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
-    model.add(tf.keras.layers.Dense(self.NbrActions, activation = tf.nn.relu))
+    model.add(tf.keras.layers.Dense(self.NbrActions, activation = "linear"))
 
     model.compile(loss = "mse", optimizer = "adam")
 
@@ -122,15 +122,31 @@ class DDQNAgent:
       q_eval = self.brain_eval.predict(new_state)
       q_pred = self.brain_eval.predict(state)
 
+      # print('state', state)
+      # print('new_state', new_state)
+
       max_actions = np.argmax(q_eval, axis=1)
 
       q_target = q_pred
 
       batch_index = np.arange(self.batch_size, dtype=np.int32)
+      # print('batch_index ', batch_index)
+      # print('qpred', q_pred[batch_index])
+      # print('shape', len(q_pred[batch_index]))
+      # print('max_actions', max_actions)
+      # print('q_next ', q_next[batch_index, max_actions])
+      # print('gamma', self.gamma)
+      # print('reward', reward)
+      # print('done', done)
+
+      # discount = self.gamma*q_next[batch_index, max_actions.astype(int)]*done
+      # print('discount', discount)
 
       q_target[batch_index, action_indices] = reward + self.gamma*q_next[batch_index, max_actions.astype(int)]*done
 
-      _ = self.brain_eval.train(state, q_target)
+      # print('qtarget', q_target[batch_index])
+
+      _ = self.brain_eval.train(state, q_target[batch_index])
 
   def decay_epsilon(self):
     self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
