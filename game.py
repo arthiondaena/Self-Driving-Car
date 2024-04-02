@@ -2,6 +2,7 @@ import pygame
 import time
 import math
 from utils import *
+import numpy as np
 from goal_maker import make_goals, get_goals
 import random
 
@@ -46,7 +47,8 @@ class GameInfo:
     self.goal_no = 0
     self.finished = False
     self.finish_time = 0
-    self.goals_passed = [False]*len(self.GOALS)
+    self.goals_passed = np.full(len(self.GOALS), False)
+    self.goals_passed.fill(False)
     self.images = [(self.GRASS, (0, 0)), (self.TRACK, (-2, -14)),
           (self.FINISH, self.FINISH_POSITION), (self.TRACK_BORDER, (-2,-14))]
     self.clock = pygame.time.Clock()
@@ -71,7 +73,7 @@ class GameInfo:
     # if passed half lap, reset all the goals to False
     if self.passed_half_lap:
       self.lap += 1
-      self.goals_passed = [False]*len(self.GOALS)
+      self.goals_passed.fill(False)
       self.passed_half_lap = False
     # end game
     if self.lap == self.LAPS:
@@ -83,9 +85,10 @@ class GameInfo:
     self.lap = 0
     self.goal_no = 0
     self.computer_car = ComputerCar(10, 10)
-    self.goals_passed = [False]*len(self.GOALS)
+    self.goals_passed.fill(False)
     self.rewards = 0
     self.finished = False
+    self.race_time = time.time()
     
   def start_lap(self):
     self.reset()
@@ -103,7 +106,7 @@ class GameInfo:
       return True
 
   def gates_passed(self):
-    return self.goals_passed.count(True)+(self.lap*len(self.goals_passed))
+    return self.goals_passed.sum()+(self.lap*self.goals_passed.shape[0])
 
   def draw(self):
     for img, pos, in self.images:
@@ -147,9 +150,9 @@ class GameInfo:
       break
 
   def calculate_rays(self, car, render=False):
-    rays = []
+    rays = np.zeros(7)
     for angle in range(180, 361, 30):
-      rays.append(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+      rays[(angle-180)//30]=(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
     return rays
 
   def step(self, action):
@@ -171,7 +174,7 @@ class GameInfo:
     rewards += round(self.computer_car.vel/self.computer_car.max_vel, 2)
     
     if done:
-      new_state = [0]*len(new_state)
+      new_state.fill(0)
     
     return new_state, rewards, done
   

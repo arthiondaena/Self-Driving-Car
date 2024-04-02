@@ -102,7 +102,7 @@ def run():
           ' epsilon: ', ddqn_agent.epsilon,
           ' memory size', ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size)
     with open('output.txt', 'a') as fw:
-      fw.write(f"episode: {e}, score: {score}, reward gates passed: {game.gates_passed()}, average score: {avg_score}, epsilon: {ddqn_agent.epsilon}, memory size: {ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size}\n")
+      fw.write(f"episode: {e}, score: {round(score, 2)}, reward gates passed: {game.gates_passed()}, average score: {round(avg_score, 2)}, epsilon: {ddqn_agent.epsilon}, memory size: {ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size}\n")
     ddqn_agent.decay_epsilon()
 
 run()
