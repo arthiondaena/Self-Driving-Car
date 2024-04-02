@@ -5,7 +5,7 @@ from utils import *
 import numpy as np
 from goal_maker import make_goals, get_goals
 import random
-
+import ray
 
 pygame.font.init()
 
@@ -151,8 +151,14 @@ class GameInfo:
 
   def calculate_rays(self, car, render=False):
     rays = np.zeros(7)
+    # normal
+    # for angle in range(180, 361, 30):
+    #   rays[(angle-180)//30]=(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+
+    # cython
     for angle in range(180, 361, 30):
-      rays[(angle-180)//30]=(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+      rays[(angle-180)//30]=(ray.draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+
     return rays
 
   def step(self, action):
