@@ -14,10 +14,10 @@ pygame.init()
 
 game = game.GameInfo()
 
-ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=1.00, epsilon_end=0.10, epsilon_dec=0.99, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
+ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=0.20, epsilon_end=0.10, epsilon_dec=0.99, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
 
 # Try existing model
-# ddqn_agent.load_model()
+ddqn_agent.load_model()
 
 plt.xlabel('episodes')
 plt.ylabel('reward gates')

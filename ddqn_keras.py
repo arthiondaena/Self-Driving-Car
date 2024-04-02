@@ -146,7 +146,10 @@ class DDQNAgent:
 
       # print('qtarget', q_target[batch_index])
 
-      _ = self.brain_eval.train(state, q_target[batch_index])
+      state = tf.convert_to_tensor(state)
+      q_val = tf.convert_to_tensor(q_target[batch_index])
+
+      _ = self.brain_eval.train(state, q_val)
 
   def decay_epsilon(self):
     self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
