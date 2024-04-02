@@ -157,7 +157,7 @@ class GameInfo:
 
     # cython
     for angle in range(180, 361, 30):
-      rays[(angle-180)//30]=(ray.draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+      rays[(angle-180)//30]=(ray.draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render=False))
 
     return rays
 
@@ -178,6 +178,10 @@ class GameInfo:
     rewards = self.rewards - old_rewards
     # Small rewards based on current car velocity
     rewards += round(self.computer_car.vel/self.computer_car.max_vel, 2)
+
+    # Penalty for not doing anything
+    if action == 0:
+      rewards -= 1
     
     if done:
       new_state.fill(0)
@@ -283,6 +287,7 @@ class ComputerCar(AbstractCar):
       moved = True
       self.move_backward()
       self.rotate(right=True)
+    self.reduce_speed()
 
 class PlayerCar(AbstractCar):
   RED_CAR = scale_image(pygame.image.load("imgs/red-car.png"), 0.55)
