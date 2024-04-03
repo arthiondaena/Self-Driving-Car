@@ -14,10 +14,10 @@ pygame.init()
 
 game = game.GameInfo()
 
-ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=0.20, epsilon_end=0.10, epsilon_dec=0.99, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
+ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=1, epsilon_end=0.10, epsilon_dec=0.995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
 
 # Try existing model
-ddqn_agent.load_model()
+# ddqn_agent.load_model()
 
 plt.xlabel('episodes')
 plt.ylabel('reward gates')
@@ -60,12 +60,12 @@ def run():
       observation_, reward, done = game.step(action)
       observation_ = np.array(observation_)
 
-      # This is a countdown if no reward is collected in 100 ticks then done is True
+      if game.get_time()>=90.0:
+        done = True
       if score <= 0:
         counter += 1
-        if counter > 100:
+        if counter > 200:
           done = True
-      
       else:
         counter = 0
       
@@ -76,9 +76,6 @@ def run():
       ddqn_agent.learn()
 
       gtime += 1
-
-      if gtime >= TOTAL_GAMETIME:
-        done = True
       
     eps_his.append(ddqn_agent.epsilon)
     ddqn_scores.append(score)
@@ -102,7 +99,7 @@ def run():
           ' epsilon: ', ddqn_agent.epsilon,
           ' memory size', ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size)
     with open('output.txt', 'a') as fw:
-      fw.write(f"episode: {e}, score: {round(score, 2)}, reward gates passed: {game.gates_passed()}, average score: {round(avg_score, 2)}, epsilon: {ddqn_agent.epsilon}, memory size: {ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size}\n")
+      fw.write(f"episode: {e}, score: {round(score, 2)}, reward gates passed: {game.gates_passed()}, average score: {round(avg_score, 2)}, time: {game.get_time()}, steps: {gtime}, epsilon: {ddqn_agent.epsilon}, memory size: {ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size}\n")
     ddqn_agent.decay_epsilon()
 
 run()
