@@ -4,6 +4,7 @@ from keras.models import Sequential, load_model
 from keras.optimizers import Adam
 import numpy as np
 import tensorflow as tf 
+# import time
 
 class ReplayBuffer:
   def __init__(self, max_size, input_shape, n_actions, discrete=False):
@@ -54,8 +55,7 @@ class Brain:
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
     model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
-    # model.add(tf.keras.layers.Dense(128, activation = tf.nn.relu))
-    model.add(tf.keras.layers.Dense(self.NbrActions, activation = "linear"))
+    model.add(tf.keras.layers.Dense(self.NbrActions, activation = "softmax"))
 
     model.compile(loss = "mse", optimizer = "adam")
 
@@ -65,7 +65,9 @@ class Brain:
     self.model.fit(x, y, batch_size = self.batch_size, verbose = verbose)
   
   def predict(self, s):
-    return self.model.predict(s)
+    # return self.model.predict(s)
+    return self.model(s, training=False)
+
   
   def predictOne(self, s):
     return self.model.predict(tf.reshape(s, [1, self.NbrStates])).flatten()
@@ -106,7 +108,10 @@ class DDQNAgent:
     if rand < self.epsilon:
       action = np.random.choice(self.action_space)
     else:
+      # print('step')
+      # t = time.time()
       actions = self.brain_eval.predict(state)
+      # print("time: ", time.time()-t)
       action = np.argmax(actions)
     
     return action
@@ -118,9 +123,12 @@ class DDQNAgent:
       actions_values = np.array(self.action_space, dtype=np.int8)
       action_indices = np.dot(action, actions_values)
 
-      q_next = self.brain_target.predict(new_state)
-      q_eval = self.brain_eval.predict(new_state)
-      q_pred = self.brain_eval.predict(state)
+      # print('prediction')
+      # t=time.time()
+      q_next = np.array(self.brain_target.predict(new_state))
+      q_eval = np.array(self.brain_eval.predict(new_state))
+      q_pred = np.array(self.brain_eval.predict(state))
+      # print('time: ', time.time()-t)
 
       # print('state', state)
       # print('new_state', new_state)
@@ -149,7 +157,10 @@ class DDQNAgent:
       state = tf.convert_to_tensor(state)
       q_val = tf.convert_to_tensor(q_target[batch_index])
 
+      # print('traninig')
+      # t=time.time()
       _ = self.brain_eval.train(state, q_val)
+      # print('time: ', time.time()-t)
 
   def decay_epsilon(self):
     self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
