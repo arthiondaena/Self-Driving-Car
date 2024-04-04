@@ -1,5 +1,6 @@
 import pygame
 import math
+from copy import copy
 
 def scale_image(img, factor):
   size = round(img.get_width() * factor), round(img.get_height() * factor)
@@ -11,40 +12,42 @@ def blit_rotate_center(win, image, top_left, angle):
     center=image.get_rect(topleft=top_left).center)
   win.blit(rotated_image, new_rect.topleft)
 
-def draw_beam(surface, angle, pos, filpped_masks, beam_surface, render=False):
+def draw_beam(surface, mask, angle, pos, render=False):
   c = math.cos(math.radians(angle))
   s = math.sin(math.radians(angle))
+  
+  step_size = 2
+  max_steps = 100
+  max_dist = max_steps * step_size
 
-  flip_x = c < 0
-  flip_y = s < 0
-  filpped_mask = filpped_masks[flip_x][flip_y]
+  query_pos = copy(pos)
+  ratio = 0
+  hit = False
 
-  # compute beam final point
-  x_dest = surface.get_width() * abs(c)
-  y_dest = surface.get_height() * abs(s)
+  mask.lock()
 
-  # beam_surface = pygame.Surface(surface.get_rect().center, pygame.SRCALPHA)
+  for step in range(max_steps):
+      ratio = (step + 1) / max_steps
 
-  beam_surface.fill((0, 0, 0, 0))
+      query_pos = (pos[0] + c * ratio * max_dist, pos[1] + s * ratio * max_dist)
 
-  # draw a single beam to the beam surface based on computed final point
-  pygame.draw.line(beam_surface, (0, 0, 255), (0, 0), (x_dest, y_dest))
-  beam_mask = pygame.mask.from_surface(beam_surface)
+      if query_pos[0] < 0 or query_pos[0] >= mask.get_width() or query_pos[1] < 0 or query_pos[1] >= mask.get_height():
+          break
 
-  # find overlap between "global mask" and current beam mask
-  offset_x = surface.get_width() - 1 - pos[0] if flip_x else pos[0]
-  offset_y = surface.get_height() - 1 - pos[1] if flip_y else pos[1]
-  hit = filpped_mask.overlap(beam_mask, (offset_x, offset_y))
-  if hit is not None and (hit[0] != pos[0] or hit[1] != pos[1]):
-    hx = surface.get_width() - 1 - hit[0] if flip_x else hit[0]
-    hy = surface.get_height() - 1 - hit[1] if flip_y else hit[1]
-    hit_pos = (hx, hy)
-    # visualize rays
-    if render:
-      line1 = pygame.draw.line(surface, (0, 0, 255), pos, hit_pos)
-      pygame.draw.circle(surface, (0, 255, 0), hit_pos, 3)
-    return round(math.hypot(hx-pos[0], hy-pos[1]), 2)
-  return surface.get_width()
+      color = mask.get_at((int(query_pos[0] + 0.5), int(query_pos[1] + 0.5)))
+
+      if color[3] > 127:
+          hit = True
+
+          break
+
+  mask.unlock()
+
+  if render and hit:
+    line1 = pygame.draw.line(surface, (0, 0, 255), pos, query_pos)
+    pygame.draw.circle(surface, (0, 255, 0), query_pos, 3)
+
+  return ratio * max_dist
   
 def blit_text_center(win, font, text):
   render = font.render(text, 1, (0, 0, 0))

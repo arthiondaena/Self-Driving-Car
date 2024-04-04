@@ -25,18 +25,6 @@ class GameInfo:
   WIN = pygame.display.set_mode((WIDTH, HEIGHT))
   pygame.display.set_caption("Racing Game!")
 
-  # All the masks to identify the collision
-  mask = pygame.mask.from_surface(MASK_SURFACE)
-  mask_fx = pygame.mask.from_surface(
-      pygame.transform.flip(MASK_SURFACE, True, False))
-  mask_fy = pygame.mask.from_surface(
-      pygame.transform.flip(MASK_SURFACE, False, True))
-  mask_fx_fy = pygame.mask.from_surface(
-      pygame.transform.flip(MASK_SURFACE, True, True))
-  filpped_masks = [[mask, mask_fy], [mask_fx, mask_fx_fy]]
-
-  beam_surface = pygame.Surface(WIN.get_rect().center, pygame.SRCALPHA)
-
   def __init__(self):
     self.started = False
     self.lap = 0
@@ -62,7 +50,7 @@ class GameInfo:
 
       # if car collides with any of the goal, and goal_passed[i] is False, then increase rewards by 10
       if rect.clipline(self.GOALS[i][0], self.GOALS[i][1]):
-        if self.goals_passed[i] is False:
+        if self.goals_passed[i]==False:
           self.rewards += 10
         self.goals_passed[i] = True
         if i == len(self.GOALS)/2:
@@ -125,7 +113,7 @@ class GameInfo:
   def play_game(self, render=False):
     run = True
     while run:
-      self.clock.tick(self.FPS)
+      # self.clock.tick(self.FPS)
 
       if render:
         self.draw()
@@ -135,15 +123,15 @@ class GameInfo:
           pygame.quit()
           break
 
-      self.track_collision(self.computer_car)
-      self.car_passed()
+      # self.track_collision(self.computer_car)
+      # self.car_passed()
 
       finish_poi_collide = self.computer_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
 
       if finish_poi_collide != None:
         self.next_lap()
       
-      self.calculate_rays(self.computer_car, render)
+      # self.calculate_rays(self.computer_car, render)
       
       pygame.display.update()
       break
@@ -152,7 +140,7 @@ class GameInfo:
     rays = np.zeros(7)
 
     for angle in range(180, 361, 30):
-      rays[(angle-180)//30]=(draw_beam(self.WIN, angle-car.angle, (car.x+10, car.y+20), self.filpped_masks, self.beam_surface, render))
+      rays[(angle-180)//30]=(draw_beam(self.WIN, self.MASK_SURFACE, angle-car.angle, (car.x+10, car.y+20)))
 
     return rays
 
@@ -160,6 +148,8 @@ class GameInfo:
     if not self.started:
       self.started = True
       self.start_lap()
+    if action==0:
+      action=1
     done = False
     old_rewards = self.rewards
     self.computer_car.move_player(action)
@@ -173,10 +163,6 @@ class GameInfo:
     rewards = self.rewards - old_rewards
     # Small rewards based on current car velocity
     rewards += round(self.computer_car.vel/self.computer_car.max_vel, 2)
-
-    # Penalty for not doing anything
-    if action == 0:
-      rewards -= 1
     
     if done:
       new_state.fill(0)
