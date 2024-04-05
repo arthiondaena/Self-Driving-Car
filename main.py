@@ -51,16 +51,14 @@ def run():
         if event.type == pygame.QUIT:
           pygame.quit()
           return
-      if e % 10 == 0:
-        game.play_game(render=True)
-      else:
-        game.play_game(render=False)
+      # if e % 10 == 0:
+      #   game.play_game()
 
       action = ddqn_agent.choose_action(observation)
       observation_, reward, done = game.step(action)
       observation_ = np.array(observation_)
 
-      if game.get_time()>=90.0:
+      if game.get_time()>=30.0:
         done = True
       
       score += reward

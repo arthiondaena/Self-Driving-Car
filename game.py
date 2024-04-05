@@ -109,29 +109,23 @@ class GameInfo:
     
     self.computer_car.draw(self.WIN)
     pygame.display.update()
+  
+  def check_nextlap(self):
+    finish_poi_collide = self.computer_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
 
-  def play_game(self, render=False):
+    if finish_poi_collide != None:
+      self.next_lap()
+
+  def play_game(self):
     run = True
     while run:
       # self.clock.tick(self.FPS)
-
-      if render:
-        self.draw()
+      self.draw()
         
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           pygame.quit()
           break
-
-      # self.track_collision(self.computer_car)
-      # self.car_passed()
-
-      finish_poi_collide = self.computer_car.collide(self.FINISH_MASK, *self.FINISH_POSITION)
-
-      if finish_poi_collide != None:
-        self.next_lap()
-      
-      # self.calculate_rays(self.computer_car, render)
       
       pygame.display.update()
       break
@@ -155,6 +149,7 @@ class GameInfo:
     self.computer_car.move_player(action)
     new_state = self.calculate_rays(self.computer_car)
     self.car_passed()
+    self.check_nextlap()
 
     if self.track_collision(self.computer_car):
       done = True
