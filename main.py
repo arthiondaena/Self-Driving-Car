@@ -14,7 +14,7 @@ pygame.init()
 
 game = game.GameInfo()
 
-ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=0.8, epsilon_end=0.03, epsilon_dec=0.9995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
+ddqn_agent = DDQNAgent(gamma=0.99, n_actions=4, epsilon=0.8, epsilon_end=0.03, epsilon_dec=0.995, replace_target=REPLACE_TARGET, batch_size=512, input_dims=7)
 
 # Try existing model
 # ddqn_agent.load_model()
@@ -29,6 +29,8 @@ episodesNo = []
 reward_gates = []
 ddqn_scores = []
 eps_his = []
+
+avg_time = 20
 
 file = open("output.txt", "w")
 
@@ -72,15 +74,17 @@ def run():
     eps_his.append(ddqn_agent.epsilon)
     ddqn_scores.append(score)
     avg_score = np.mean(ddqn_scores[max(0, e-100):(e+1)])
-    episodesNo.append(e)
     reward_gates.append(game.gates_passed())
-    if e%50==0 and e>0:
+
+    if e%avg_time==0 and e>0:
+      plt.cla()
+      episodesNo.append(e)
       reward_gates1 = np.array(reward_gates)
       reward_avg = np.array([[x.mean(), x.min(), x.max()]            
-         for x in np.array_split(reward_gates1, reward_gates1.shape[0]/50)])  
-      ax.plot(episodesNo, reward_avg[0], label = "mean")
-      ax.plot(episodesNo, reward_avg[1], label = "min")
-      ax.plot(episodesNo, reward_avg[2], label = "max")
+         for x in np.array_split(reward_gates1, reward_gates1.shape[0]/avg_time)])
+      ax.plot(episodesNo, reward_avg[:, 0], label = "mean")
+      ax.plot(episodesNo, reward_avg[:, 1], label = "min")
+      ax.plot(episodesNo, reward_avg[:, 2], label = "max")
       plt.legend()
       plt.draw()
       plt.savefig("plot.png")
