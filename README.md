@@ -23,7 +23,20 @@ In this project, I represent a simple self-driving car using the DQN algorithm
   - Three possible actions are: left, right, and brake.
 
 ## Brief introduction to DQN
-Q-Learning is required as a pre-requisite as it is a process of Q-Learning creates an exact matrix for the working agent which it can “refer to” to maximize its reward in the long run. Although this approach is not wrong in itself, this is only practical for very small environments and quickly loses it’s feasibility when the number of states and actions in the environment increases. The solution for the above problem comes from the realization that the values in the matrix only have relative importance ie the values only have importance with respect to the other values. Thus, this thinking leads us to Deep Q-Learning which uses a deep neural network to approximate the values. This approximation of values does not hurt as long as the relative importance is preserved. The basic working step for Deep Q-Learning is that the initial state is fed into the neural network and it returns the Q-value of all possible actions as an output. 
+## Deep Q-Network (DQN)
+
+DQN is a type of reinforcement learning algorithm that utilizes deep neural networks to help an agent learn the best course of action within an environment.
+
+**Here's the gist:**
+
+1. The agent interacts with the environment (think video game) and gathers experiences. These experiences include the state it was in, the action it took, the reward it received, and the new state it transitioned to.
+2. DQN utilizes a technique called experience replay. It stores these experiences in a memory buffer, allowing the agent to learn from them even after they occur.
+3. A deep neural network, called the Q-network, estimates the Q-value for each state-action pair. The Q-value signifies the expected future reward the agent can obtain by taking a specific action in a particular state.
+4. The DQN trains by updating the Q-network's estimates using experiences from the replay memory. It adjusts the network to make its Q-value predictions more accurate over time.
+5. Once trained, the agent leverages the Q-network to make decisions. It selects the action with the highest Q-value in a given state, aiming to maximize future rewards.
+
+**In essence, DQN learns from experience, predicts future rewards, and makes decisions to optimize them.**
+
 
 ## Usage
 Cloning the repo
