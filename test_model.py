@@ -4,7 +4,7 @@ from ddqn_torch import DQN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-env = CustomEnv(players=1)
+env = CustomEnv(players=2)
 agent = DQN(env)
 agent.load()
 
