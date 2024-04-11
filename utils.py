@@ -33,13 +33,13 @@ def draw_beam(surface, mask, angle, pos, render=False):
 
       if query_pos[0] < 0 or query_pos[0] >= mask.get_width() or query_pos[1] < 0 or query_pos[1] >= mask.get_height():
           break
-
+      # try:
       color = mask.get_at((int(query_pos[0] + 0.5), int(query_pos[1] + 0.5)))
-
       if color[3] > 127:
           hit = True
-
           break
+      # except:
+      #   pass
 
   mask.unlock()
 
