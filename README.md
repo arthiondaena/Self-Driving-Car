@@ -22,7 +22,6 @@ In this project, I represent a simple self-driving car using the DQN algorithm
 - __Output Layer (actions)__ - represents the actions the agent takes based on the calculation of the NN.
   - Three possible actions are: left, right, and brake.
 
-## Brief introduction to DQN
 ## Deep Q-Network (DQN)
 
 DQN is a type of reinforcement learning algorithm that utilizes deep neural networks to help an agent learn the best course of action within an environment.
