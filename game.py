@@ -101,8 +101,12 @@ class GameInfo:
     for img, pos, in self.images:
       self.WIN.blit(img, pos)
 
-    lap_text = MAIN_FONT.render(
-        f"Lap {self.player_car.laps}", 1, (255, 255, 255))
+    if self.players == 2:
+      lap_text = MAIN_FONT.render(
+          f"Lap {self.player_car.laps}", 1, (255, 255, 255))
+    else:
+      lap_text = MAIN_FONT.render(
+          f"Lap {self.computer_car.laps}", 1, (255, 255, 255))
     self.WIN.blit(lap_text, (10, self.HEIGHT - lap_text.get_height() - 60))
 
     time_text = MAIN_FONT.render(
@@ -120,6 +124,22 @@ class GameInfo:
 
     pygame.display.update()
   
+  def draw_actions(self, action):
+    pygame.draw.rect(self.WIN,(255,255,255),(800, 100, 40, 40),2)
+    pygame.draw.rect(self.WIN,(255,255,255),(850, 100, 40, 40),2)
+    pygame.draw.rect(self.WIN,(255,255,255),(900, 100, 40, 40),2)
+    pygame.draw.rect(self.WIN,(255,255,255),(850, 50, 40, 40),2)
+    pygame.draw.rect(self.WIN, (0, 255, 0), (850, 50, 40, 40))
+    
+    if action == 0:
+      pygame.draw.rect(self.WIN, (0, 255, 0), (850, 100, 40, 40))
+    elif action == 1:
+      pygame.draw.rect(self.WIN, (0, 255, 0), (800, 100, 40, 40))
+    elif action == 2:
+      pygame.draw.rect(self.WIN, (0, 255, 0), (900, 100, 40, 40))
+
+    pygame.display.update()
+
   def check_nextlap(self, car):
     finish_poi_collide = car.finish_collide(self.FINISH_MASK, *self.FINISH_POSITION)
 
@@ -166,8 +186,9 @@ class GameInfo:
 
     return rays
 
-  def step(self, action):
+  def step(self, action, render=False):
     if not self.started:
+      pygame.time.wait(5000)
       self.started = True
       self.start_lap()
     done = False
@@ -182,6 +203,9 @@ class GameInfo:
       self.computer_car.vel = -self.computer_car.vel
       done = True
       self.rewards -= 25
+    
+    if render and self.players == 1:
+      self.draw_actions(action)
     
     rewards = self.rewards - old_rewards
     # Small rewards based on current car velocity

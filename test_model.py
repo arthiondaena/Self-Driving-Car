@@ -4,7 +4,7 @@ from ddqn_torch import DQN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-env = CustomEnv(2)
+env = CustomEnv(players=1)
 agent = DQN(env)
 agent.load()
 
@@ -15,7 +15,7 @@ def play():
 
   while True:
       action = agent.best_action(state)
-      observation, reward, terminated, truncated, _ = env.step(action.item())
+      observation, reward, terminated, truncated, _ = env.step(action.item(), render=True)
       score += reward
       reward = torch.tensor([reward], device=device)
       done = terminated or truncated

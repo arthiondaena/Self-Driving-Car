@@ -17,8 +17,8 @@ class CustomEnv(gymnasium.Env):
     self.game = game.GameInfo(players)
     self.reset()
 
-  def step(self, action):
-    observation, reward, done = self.game.step(action)
+  def step(self, action, render=False):
+    observation, reward, done = self.game.step(action, render)
     # self.game.play_game()
     info = self.game.gates_passed()
     truncated = False
