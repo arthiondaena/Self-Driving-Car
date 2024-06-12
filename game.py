@@ -17,9 +17,9 @@ class GameInfo:
   LAPS = 3
   FPS = 60
   GRASS = scale_image(pygame.image.load("imgs/grass.jpg"), 2.3)
-  TRACK = scale_image(pygame.image.load("imgs/track1.png"), 0.5)
-  TRACK_BORDER = scale_image(pygame.image.load("imgs/track1_border.png"), 0.5)
-  MASK_SURFACE = scale_image(pygame.image.load("imgs/track1_border.png"), 0.5)
+  TRACK = scale_image(pygame.image.load("imgs/f1track.png"), 0.5)
+  TRACK_BORDER = scale_image(pygame.image.load("imgs/f1mask1.png"), 0.5)
+  MASK_SURFACE = scale_image(pygame.image.load("imgs/f1mask1.png"), 0.5)
   TRACK_BORDER_MASK = pygame.mask.from_surface(MASK_SURFACE)
   FINISH = pygame.image.load("imgs/finish.png")
   FINISH = pygame.transform.rotate(FINISH, 90)
@@ -40,7 +40,7 @@ class GameInfo:
     self.finish_time = 0
     self.goals_passed = np.full(len(self.GOALS), False)
     self.goals_passed.fill(False)
-    self.images = [(self.GRASS, (0, 0)), (self.TRACK, (0,0)),
+    self.images = [(self.TRACK, (0,0)),
           (self.FINISH, self.FINISH_POSITION)]
     self.clock = pygame.time.Clock()
     self.computer_car = ComputerCar(8, 10)
@@ -71,9 +71,9 @@ class GameInfo:
   def reset(self):
     self.lap = 0
     self.goal_no = 0
-    self.computer_car = ComputerCar(8, 10)
+    self.computer_car = ComputerCar(15, 10)
     if self.players == 2:
-      self.player_car = PlayerCar(8, 10)
+      self.player_car = PlayerCar(15, 10)
     self.goals_passed.fill(False)
     self.rewards = 0
     self.finished = False
@@ -182,13 +182,13 @@ class GameInfo:
     rays = np.zeros(8)
 
     for angle in range(180, 361, 30):
-      rays[(angle-180)//30]=(draw_beam(self.WIN, self.MASK_SURFACE, angle-car.angle, (car.x+10, car.y+20), render=False))
+      rays[(angle-180)//30]=(draw_beam(self.WIN, self.MASK_SURFACE, angle-car.angle, (car.x+10, car.y+20), render=False))*2
 
+    print(rays)
     return rays
 
   def step(self, action, render=False):
     if not self.started:
-      pygame.time.wait(5000)
       self.started = True
       self.start_lap()
     done = False
@@ -238,7 +238,7 @@ class AbstractCar:
     self.angle %= 360
 
   def draw(self, win):
-    blit_rotate_center(win, self.img, (self.x, self.y), self.angle)
+    blit_rotate_center(win, self.RENDER_IMG, (self.x, self.y), self.angle)
   
   def move_forward(self):
     self.vel = min(self.vel + self.acceleration, self.max_vel)
@@ -300,7 +300,8 @@ class ComputerCar(AbstractCar):
   RED_CAR = scale_image(pygame.image.load("imgs/red-car.png"), 0.55)
   GREEN_CAR = scale_image(pygame.image.load("imgs/green-car.png"), 0.55)
   IMG = RED_CAR
-  START_POS = (230, 690)
+  RENDER_IMG = scale_image(pygame.image.load("imgs/car1.png"), 0.025)
+  START_POS = (1400, 270)
   CAR_SIZE = IMG.get_size()
 
   def move_player(self, choice):
@@ -339,7 +340,9 @@ class PlayerCar(AbstractCar):
   RED_CAR = scale_image(pygame.image.load("imgs/red-car.png"), 0.55)
   GREEN_CAR = scale_image(pygame.image.load("imgs/green-car.png"), 0.55)
   IMG = GREEN_CAR
-  START_POS = (230, 650)
+  RENDER_IMG = scale_image(pygame.image.load("imgs/car1.png"), 0.025)
+
+  START_POS = (1400, 280)
   CAR_SIZE = IMG.get_size()
 
   def move_player(self):
